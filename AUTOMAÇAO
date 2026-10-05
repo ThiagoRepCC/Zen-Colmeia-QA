@@ -1,0 +1,286 @@
+ZEN COLMEIA
+Guia de publicação do código, automação e evidências de testes
+Estrutura preparada para transformar o protótipo visual em um projeto de portfólio completo:
+interface, Google Apps Script, documentação funcional e processo de qualidade.
+
+Objetivo e arquitetura do repositório
+O repositório não deve apresentar apenas uma tela estática. A versão de portfólio precisa mostrar o
+fluxo completo: interface, regras de negócio, persistência na planilha, cenários de teste, defeitos
+identificados, retestes e documentação operacional.
+Resultado esperado: quem abrir o projeto deverá entender o problema resolvido, como a automação
+funciona, quais validações foram executadas e quais cuidados foram adotados antes da publicação.
+Estrutura recomendada
+zen-colmeia/
+|-- frontend/
+| `-- index.html
+|-- automation/
+| |-- Code.gs
+| |-- registros.gs
+| |-- validacoes.gs
+| `-- README.md
+|-- tests/
+| |-- plano-de-testes.md
+| |-- casos-de-teste.md
+| |-- bugs-encontrados.md
+| |-- relatorio-de-validacao.md
+| `-- evidencias/README.md
+|-- docs/
+| |-- fluxo-operacional.md
+| |-- criterios-de-aceite.md
+| |-- estrutura-da-planilha.md
+| `-- arquitetura-do-projeto.md
+|-- assets/preview-interface.jpg
+|-- README.md
+|-- CHANGELOG.md
+`-- .gitignore
+O que cada camada demonstra
+Frontend
+Interface, experiência do usuário, estados visuais e
+validações antes do envio.
+Automation
+Regras de negócio, integração com Sheets, tratamento
+de erros e retorno ao usuário.
+Tests
+Planejamento, cobertura, execução, defeitos, reteste,
+regressão e evidências.
+Docs
+Fluxo operacional, critérios de aceite, estrutura de
+dados e decisões técnicas.
+
+Código de automação
+O conteúdo que deve acompanhar a interface para demonstrar o funcionamento real da solução.
+A pasta automation/ deve conter uma versão pública e sanitizada do Google Apps Script responsável
+pela comunicação entre a interface e a planilha. O código pode permanecer em um único arquivo
+Code.gs quando a divisão ainda não trouxer ganho de clareza.
+Responsabilidades mínimas da automação
+• Receber os dados enviados pela interface.
+• Validar número de série e demais campos obrigatórios.
+• Converter USO em Retirada e COLMEIA em Devolução.
+• Registrar data, colaborador, operação, equipamento, status e observação.
+• Consultar o último movimento do equipamento antes de aceitar uma nova operação.
+• Impedir duplicidades e operações incompatíveis com o estado atual.
+• Retornar mensagens claras de sucesso ou erro para a interface.
+Arquivos sugeridos
+Arquivo Responsabilidade Conteúdo principal
+Code.gs Orquestração Ponto de entrada, chamadas principais e resposta
+para a interface.
+registros.gs Persistência Gravação, leitura do último movimento e
+normalização dos dados.
+validacoes.gs Regras Campos obrigatórios, duplicidade, estado e
+mensagens de validação.
+README.md Instalação Configuração, estrutura esperada da planilha e
+limitações da versão pública.
+Sanitização antes da publicação
+O código público não deve expor identificadores, e-mails, registros internos ou qualquer dado
+operacional. Use placeholders claros e inclua instruções de configuração no README da automação.
+// Não publique o identificador real da planilha.
+const SPREADSHEET_ID = "INSIRA_O_ID_DA_PLANILHA";
+const SHEET_NAME = "REGISTRO_COLMEIA";
+// Use dados fictícios nos exemplos e evidências.
+const EXAMPLE_SERIAL = "NOTEBOOK-DEMO-001";
+
+Plano de testes
+O arquivo tests/plano-de-testes.md deve explicar o que será testado e qual condição precisa ser
+atendida para considerar a versão pronta para demonstração. Ele serve como referência para a
+execução, o reteste e a regressão.
+Conteúdo do plano
+Objetivo
+Validar o fluxo de retirada e devolução, a persistência
+dos dados e o retorno ao usuário.
+Escopo
+Interface, validações, integração com Apps Script,
+gravação e mensagens.
+Ambiente
+Navegador, sistema operacional, versão do código e
+planilha de teste.
+Tipos de teste
+Funcional, negativo, integração, interface, reteste e
+regressão.
+Entrada
+Versão publicada, dados fictícios, planilha preparada e
+acesso ao ambiente.
+Saída
+Casos críticos aprovados, defeitos tratados e
+evidências registradas.
+Riscos que merecem prioridade
+Risco Impacto Chance Tratamento
+Registro duplicado por clique repetido Alto Média Bloquear botão e criar proteção
+no backend.
+Operação incompatível com o estado atual Alto Média Consultar último movimento
+antes de gravar.
+Observação não persistida Médio Média Validar mapeamento e coluna
+de destino.
+Falha de comunicação sem mensagem Alto Baixa Tratar erro e orientar nova
+tentativa.
+Modelo de identificação do ambiente
+Versão testada: v1.0.0
+Navegador: Google Chrome
+Sistema operacional: Windows 11
+Backend: Google Apps Script
+Base: Google Sheets com dados fictícios
+Data da execução: AAAA-MM-DD
+Executor: Nome do responsável
+
+Catálogo de casos de teste
+Cobertura funcional e negativa recomendada para o fluxo principal do Zen Colmeia.
+Importante: os status e resultados devem ser preenchidos somente depois da execução. A tabela abaixo
+é o catálogo planejado, não uma confirmação de aprovação.
+Catálogo planejado CT-001 a CT-015
+ID Cenário Resultado esperado
+CT-001 Registrar retirada com dados válidos Criar um único registro como Retirada, exibir sucesso e limpar os campos.
+CT-002 Registrar devolução com dados válidos Criar um único registro como Devolução e atualizar o estado do
+equipamento.
+CT-003 Enviar sem número de série Bloquear o envio e destacar o campo obrigatório.
+CT-004 Enviar sem colaborador Bloquear o envio e apresentar orientação clara ao usuário.
+CT-005 Número de série duplicado Impedir cadastro incompatível e informar a duplicidade.
+CT-006 Retirada repetida Recusar nova retirada quando o equipamento já estiver em uso.
+CT-007 Devolução sem retirada anterior Recusar a devolução quando não houver movimento compatível.
+CT-008 Persistência da observação Salvar integralmente a observação na coluna definida para o campo.
+CT-009 Limpeza após o registro Limpar apenas os campos previstos, sem reutilizar dados da operação
+anterior.
+CT-010 Mensagem de conclusão Exibir confirmação objetiva e coerente com a operação realizada.
+CT-011 Alternância USO / COLMEIA Atualizar o estado visual e o valor enviado ao backend.
+CT-012 Tela reduzida Manter leitura, navegação e controles utilizáveis em menor largura.
+CT-013 Falha de comunicação Preservar os dados preenchidos e apresentar mensagem de erro acionável.
+CT-014 Clique repetido no botão Enviar uma única solicitação enquanto o processamento estiver ativo.
+CT-015 Espaços e caracteres inválidos Normalizar ou rejeitar entradas conforme as regras definidas.
+
+Modelo completo de caso de teste
+O arquivo tests/casos-de-teste.md deve permitir que outra pessoa repita o cenário e entenda o
+resultado sem depender de explicações adicionais.
+Campos obrigatórios
+Campo O que registrar
+Identificação ID único e título objetivo do cenário.
+Preparação Objetivo, pré-condições e massa de dados.
+Execução Passos numerados e reproduzíveis.
+Validação Resultado esperado e resultado obtido.
+Situação Não executado, Passou, Falhou ou Bloqueado.
+Rastreabilidade Evidência e referência de defeito, quando aplicável.
+Exemplo: CT-001 - Registrar retirada válida
+Objetivo Verificar se uma retirada válida é registrada corretamente.
+Pré-condições Interface aberta; número de série cadastrado; equipamento disponível.
+Passos
+1. Informar o número de série.
+2. Informar o colaborador.
+3. Selecionar USO.
+4. Acionar Registrar.
+Esperado Registrar como Retirada, exibir confirmação, limpar os campos e gravar na planilha.
+Obtido Preencher após a execução.
+Status Não executado / Passou / Falhou / Bloqueado
+Evidência Adicionar captura ou referência na pasta tests/evidencias/.
+Padrão de nome para evidências
+CT-001_retirada-valida_passou.png
+CT-014_clique-repetido_falhou.png
+BUG-003_reteste_corrigido.mp4
+
+Registro e tratamento de defeitos
+O arquivo tests/bugs-encontrados.md deve registrar problemas reais observados durante o
+desenvolvimento e a validação. Um bom relato permite reproduzir o defeito e comprovar a correção
+sem depender de explicações verbais.
+Defeitos relevantes para acompanhar
+• Looping ou repetição durante o envio.
+• Duplicidade de eventos e de registros.
+• Reutilização indevida do estado da operação anterior.
+• Ausência de validação em campos obrigatórios.
+• Perda ou gravação incorreta da observação.
+• Falha no retorno do backend ou mensagem genérica.
+• Inconsistência entre o texto exibido e o status persistido.
+• Problemas de responsividade e acesso aos controles.
+Exemplo de relatório de bug
+Identificação BUG-003 - Registro duplicado ao clicar rapidamente
+Severidade Alta
+Prioridade Alta
+Ambiente Google Chrome / Windows 11
+Descrição Ao clicar duas vezes rapidamente no botão, o mesmo movimento pode ser gravado duas vezes.
+Passos
+1. Preencher os dados obrigatórios.
+2. Selecionar USO.
+3. Clicar rapidamente duas vezes em Registrar.
+4. Consultar a planilha.
+Atual Dois registros idênticos são criados.
+Esperado Apenas um registro deve ser criado.
+Correção Desabilitar o botão durante o processamento e reforçar a proteção no backend.
+Reteste Executar novamente o cenário e uma regressão do fluxo de retirada e devolução.
+Status Corrigido e retestado - preencher somente quando confirmado.
+
+Relatório de validação
+O arquivo tests/relatorio-de-validacao.md resume a situação da versão. Ele deve ser objetivo e
+rastreável: cada número precisa corresponder aos casos de teste e aos defeitos registrados.
+Modelo ilustrativo: os números abaixo são um exemplo de apresentação. Substitua-os pelos resultados
+reais da sua execução antes de publicar.
+15
+CASOS PLANEJADOS
+15
+CASOS EXECUTADOS
+2
+DEFEITOS RETESTADOS
+APROVADO
+RESULTADO FINAL
+Estrutura do relatório
+Bloco Conteúdo esperado
+Resumo Versão, período, executor, quantidade planejada, executada, aprovada, falha e bloqueada.
+Cobertura Fluxos, navegadores, regras de negócio e integrações avaliadas.
+Defeitos Lista dos bugs, severidade, correção, reteste e situação atual.
+Riscos Limitações conhecidas e cenários ainda não cobertos.
+Conclusão Decisão objetiva: aprovado, aprovado com ressalvas ou reprovado.
+Tipos de teste a registrar
+• Testes funcionais e negativos.
+• Validação dos campos e das mensagens.
+• Integração entre interface, Apps Script e planilha.
+• Reteste dos defeitos corrigidos.
+• Regressão dos fluxos de retirada e devolução.
+
+Documentação operacional
+Fluxo de uso, estrutura dos dados e regras necessárias para compreender a solução.
+Fluxo principal
+1 Informar o número de série — O usuário identifica o equipamento que será movimentado.
+↓
+2 Identificar o colaborador — O registro é associado ao responsável pela operação.
+↓
+3 Selecionar USO ou COLMEIA — A interface define retirada ou devolução.
+↓
+4
+Adicionar observação — O campo é utilizado em divergências, exceções ou informações
+relevantes.
+↓
+5 Validar e registrar — A interface e o backend verificam os dados antes da gravação.
+↓
+6 Confirmar a operação — O sistema apresenta sucesso ou uma mensagem de erro acionável.
+Estrutura esperada da planilha
+Coluna Campo Finalidade
+A Data e hora Momento em que a operação foi registrada.
+B ID do registro Identificador único para rastreabilidade.
+C Colaborador Responsável informado na interface.
+D Turno Período operacional associado ao registro.
+E Gestor Referência de acompanhamento, quando aplicável.
+F Área Setor ou local da movimentação.
+G Operação Retirada ou Devolução.
+H Número de série Identificador do equipamento.
+I Equipamento Tipo ou descrição do ativo.
+J Status Situação consolidada após a operação.
+K Observação Divergência, exceção ou detalhe adicional.
+
+Critérios de aceite e segurança
+Condições mínimas para considerar o fluxo pronto e limites para a versão pública.
+Critérios de aceite
+□ Todo registro deve possuir número de série válido.
+□ Todo registro deve identificar o colaborador.
+□ USO deve ser persistido como Retirada.
+□ COLMEIA deve ser persistido como Devolução.
+□ A observação deve ser enviada para a coluna configurada.
+□ O botão não pode gerar registros duplicados.
+□ A interface deve confirmar o sucesso da operação.
+□ Falhas no backend devem ser comunicadas com orientação de nova tentativa.
+□ Operações incompatíveis com o estado atual devem ser bloqueadas.
+□ Os dados da operação anterior não podem contaminar o próximo registro.
+Não publicar no repositório
+Conteúdo restrito Substituição segura
+ID real da planilha e links internos Placeholders e instruções de configuração.
+E-mails, nomes e matrículas reais Pessoas e identificadores fictícios.
+Tokens, senhas ou chaves Variáveis de ambiente ou campos vazios.
+Registros operacionais reais Massa de teste criada para demonstração.
+Capturas com informações corporativas Imagens recortadas e anonimizadas.
+Regras internas não autorizadas Descrição genérica do comportamento funcional.
+
+ZEN COLMEIA
+Interface + automação + evidências de QA
